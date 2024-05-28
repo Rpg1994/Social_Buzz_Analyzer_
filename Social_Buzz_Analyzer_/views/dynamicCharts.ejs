@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+  <%- include('partials/_header.ejs') %>
+
+  <div class="container mt-4">
+    <h2>Dynamic Charting Options</h2>
+    <form id="dynamicChartForm">
+      <div class="mb-3">
+        <label for="chartTypeSelect" class="form-label">Chart Type</label>
+        <select class="form-select" id="chartTypeSelect" name="chartType">
+          <option value="line">Line</option>
+          <option value="bar">Bar</option>
+          <option value="candlestick">Candlestick</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="cryptoTickerSelect" class="form-label">Cryptocurrency Ticker</label>
+        <select class="form-select" id="cryptoTickerSelect" name="cryptoTicker">
+          <!-- Cryptocurrency tickers will be dynamically populated -->
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Generate Chart</button>
+    </form>
+    <canvas id="cryptoChartCanvas"></canvas>
+  </div>
+
+  <%- include('partials/_footer.ejs') %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/dynamicCharts.js"></script>
+</body>
+</html>

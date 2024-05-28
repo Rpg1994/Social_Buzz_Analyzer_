@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+  <%- include('partials/_header.ejs') %>
+
+  <div class="container mt-5">
+    <h2>Search for Cryptocurrency Mentions</h2>
+    <form id="cryptoSearchForm">
+      <div class="mb-3">
+        <label for="cryptoTicker" class="form-label">Cryptocurrency Name or Ticker:</label>
+        <input type="text" class="form-control" id="cryptoTicker" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <div id="loadingIndicator" style="display: none;">Loading...</div>
+    <canvas id="cryptoMentionChart" width="400" height="200" class="mt-4"></canvas>
+    <button id="showTrendingBtn" class="btn btn-info mt-4">Show Trending Cryptocurrencies</button>
+    <div id="trendingCryptos" class="mt-4"></div>
+
+    <!-- Prediction Form -->
+    <form id="cryptoPredictionForm" class="mt-4">
+      <div class="mb-3">
+        <label for="cryptoTickerForPrediction" class="form-label">Enter Cryptocurrency Ticker for Prediction:</label>
+        <input type="text" class="form-control" id="cryptoTickerForPrediction" required>
+      </div>
+      <button type="submit" class="btn btn-success">Get Prediction</button>
+    </form>
+    <div id="predictionResult" class="mt-4"></div>
+
+    <!-- Real-time Trading Data Display -->
+    <div id="realTimeTradingData" class="mt-4">
+      <h3>Real-time Trading Data</h3>
+      <p id="price">Price: </p>
+      <p id="volume">24h Volume: </p>
+      <p id="changePercentage">24h Change: </p>
+      <p id="tradingDataError" class="text-danger"></p>
+    </div>
+
+    <!-- Trading Platform Features -->
+    <div class="trading-features mt-5">
+      <h3>Order Book Snapshot</h3>
+      <canvas id="orderBookChart" width="400" height="200"></canvas>
+      
+      <h3>Recent Trades</h3>
+      <ul id="recentTrades" class="list-group"></ul>
+      
+      <h3>Market Depth Chart</h3>
+      <canvas id="marketDepthChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Sentiment Analysis Section -->
+    <div class="sentiment-analysis mt-4">
+        <h3>Sentiment Analysis</h3>
+        <label for="cryptoSentimentSelect">Select Cryptocurrency:</label>
+        <select id="cryptoSentimentSelect" class="form-select">
+            <!-- Options will be dynamically populated -->
+        </select>
+        <canvas id="sentimentAnalysisChart" width="400" height="400"></canvas>
+    </div>
+
+    <!-- Influence Scores Section -->
+    <div class="influence-scores mt-4">
+      <h3>Influence Scores</h3>
+      <div id="influenceScoresContainer"></div>
+    </div>
+  </div>
+
+  <%- include('partials/_footer.ejs') %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/cryptoSearch.js"></script>
+  <script src="/js/sentimentChart.js"></script>
+  <script>
+    document.getElementById('cryptoSearchForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const ticker = document.getElementById('cryptoTicker').value;
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const tradingDataError = document.getElementById('tradingDataError');
+      
+      loadingIndicator.style.display = 'block';
+      tradingDataError.textContent = '';
+
+      fetch(`/api/mentions/${ticker}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const ctx = document.getElementById('cryptoMentionChart').getContext('2d');
+          const chartData = {
+            labels: data.map(entry => entry.date),
+            datasets: [{
+              label: `Mentions for ${ticker}`,
+              data: data.map(entry => entry.mentionCount),
+              fill: false,
+              borderColor: 'rgb(75, 192, 192)',
+              tension: 0.1
+            }]
+          };
+          new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching mention data:', error);
+          alert('Failed to fetch mention data. Please try again.');
+        })
+        .finally(() => {
+          loadingIndicator.style.display = 'none';
+        });
+
+      // Fetch and display trading data
+      fetch(`/api/trading-data/${ticker}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById('price').textContent = `Price: $${data.price}`;
+          document.getElementById('volume').textContent = `24h Volume: ${data.volume}`;
+          document.getElementById('changePercentage').textContent = `24h Change: ${data.changePercentage}%`;
+        })
+        .catch(error => {
+          console.error('Error fetching trading data:', error);
+          document.getElementById('tradingDataError').textContent = 'Failed to fetch trading data. Please try again.';
+        })
+        .finally(() => {
+          loadingIndicator.style.display = 'none';
+        });
+
+      // Fetch and display influence scores
+      fetchInfluenceScores(ticker);
+    });
+
+    document.getElementById('showTrendingBtn').addEventListener('click', function() {
+      fetch('/api/trending')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(trendingCryptos => {
+          const trendingContainer = document.getElementById('trendingCryptos');
+          trendingContainer.innerHTML = ''; // Clear previous content
+          const list = document.createElement('ul');
+          list.className = 'list-group';
+
+          trendingCryptos.forEach(crypto => {
+            const item = document.createElement('li');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+            item.innerHTML = `
+              ${crypto.name} (${crypto.ticker})
+              <a href="/crypto/${crypto.ticker}" class="badge bg-primary rounded-pill">View Trends</a>
+              ${crypto.suspiciousActivityFlag ? '<span class="badge bg-warning text-dark">Suspicious Activity Detected</span>' : ''}
+            `;
+            list.appendChild(item);
+          });
+
+          trendingContainer.appendChild(list);
+        })
+        .catch(error => {
+          console.error('Error fetching trending cryptocurrencies:', error);
+          document.getElementById('trendingCryptos').innerHTML = 'Failed to fetch trending cryptocurrencies. Please try again.';
+        });
+    });
+
+    // Prediction Form Submission
+    document.getElementById('cryptoPredictionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const ticker = document.getElementById('cryptoTickerForPrediction').value;
+      
+      fetch(`/api/predictions?ticker=${ticker}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(prediction => {
+          const resultContainer = document.getElementById('predictionResult');
+          resultContainer.innerHTML = `
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">${prediction.name} (${prediction.ticker}) Prediction</h5>
+                <p class="card-text">Projected Movement: <strong>${prediction.projectedMovement}</strong></p>
+                <p class="card-text">Confidence Level: <strong>${prediction.confidenceLevel}%</strong></p>
+                <p class="card-text">Prediction Timestamp: <strong>${new Date(prediction.predictionTimestamp).toLocaleString()}</strong></p>
+              </div>
+            </div>
+          `;
+        })
+        .catch(error => {
+          console.error('Error fetching prediction data:', error);
+          document.getElementById('predictionResult').innerHTML = `<div class="alert alert-danger" role="alert">
+            Failed to fetch prediction data. Please try again.
+          </div>`;
+        });
+    });
+
+    function fetchTradingPlatformData(ticker) {
+      // Example implementation for fetching and displaying trading platform data
+      console.log('Fetching trading platform data for:', ticker);
+      // Placeholder for actual data fetching logic
+    }
+
+    function fetchInfluenceScores(ticker) {
+      fetch(`/api/influence-scores/${ticker}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const container = document.getElementById('influenceScoresContainer');
+          container.innerHTML = ''; // Clear previous content
+          if (data.length === 0) {
+            container.innerHTML = '<p>No influence scores available.</p>';
+            return;
+          }
+          const list = document.createElement('ul');
+          list.className = 'list-group';
+          data.forEach(score => {
+            const item = document.createElement('li');
+            item.className = 'list-group-item';
+            item.textContent = `Source: ${score.sourcePlatform}, Score: ${score.influenceScore}`;
+            list.appendChild(item);
+          });
+          container.appendChild(list);
+        })
+        .catch(error => {
+          console.error('Error fetching influence scores:', error);
+          document.getElementById('influenceScoresContainer').innerHTML = '<p>Failed to fetch influence scores. Please try again.</p>';
+        });
+    }
+  </script>
+</body>
+</html>

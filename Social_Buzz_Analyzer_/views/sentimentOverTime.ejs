@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+  <%- include('partials/_header.ejs') %>
+
+  <div class="container mt-4">
+    <h2>Sentiment Analysis Over Time</h2>
+    <form id="sentimentAnalysisForm">
+      <div class="mb-3">
+        <label for="ticker" class="form-label">Cryptocurrency Ticker</label>
+        <input type="text" class="form-control" id="ticker" name="ticker" required>
+      </div>
+      <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <input type="date" class="form-control" id="startDate" name="startDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="endDate" class="form-label">End Date</label>
+        <input type="date" class="form-control" id="endDate" name="endDate" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Analyze</button>
+    </form>
+    <canvas id="sentimentChart"></canvas>
+  </div>
+
+  <%- include('partials/_footer.ejs') %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/sentimentOverTime.js"></script>
+</body>
+</html>

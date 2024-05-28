@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+  <%- include('partials/_header.ejs') %>
+
+  <div class="container mt-4">
+    <h2>Manage Alerts</h2>
+    <!-- Create Alert Form -->
+    <form id="createAlertForm">
+      <input type="text" name="cryptoTicker" placeholder="Cryptocurrency Ticker" required>
+      <select name="alertType">
+        <option value="mentionCountChange">Mention Count Change</option>
+        <option value="sentimentScoreChange">Sentiment Score Change</option>
+        <option value="newTrendingCrypto">New Trending Crypto</option>
+      </select>
+      <input type="number" name="threshold" placeholder="Threshold" required>
+      <button type="submit">Create Alert</button>
+    </form>
+
+    <!-- Update Alert Form (Assuming it's for editing an existing alert) -->
+    <form id="updateAlertForm" style="display:none;">
+      <input type="hidden" name="alertId" id="alertId">
+      <input type="text" name="cryptoTicker" placeholder="Cryptocurrency Ticker" required>
+      <select name="alertType">
+        <option value="mentionCountChange">Mention Count Change</option>
+        <option value="sentimentScoreChange">Sentiment Score Change</option>
+        <option value="newTrendingCrypto">New Trending Crypto</option>
+      </select>
+      <input type="number" name="threshold" placeholder="Threshold" required>
+      <button type="submit">Update Alert</button>
+    </form>
+
+    <!-- List of existing alerts with delete buttons (Placeholder for dynamic content) -->
+    <div id="alertsList">
+      <!-- Dynamically populated list of alerts with delete buttons -->
+    </div>
+  </div>
+
+  <%- include('partials/_footer.ejs') %>
+  <script src="/js/alerts.js"></script>
+</body>
+</html>

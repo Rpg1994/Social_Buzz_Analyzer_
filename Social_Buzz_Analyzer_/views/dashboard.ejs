@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+  <body>
+<%- include('partials/_header.ejs') %>
+    <main role="main" class="container mt-4">
+      <div class="text-center">
+        <h1>Dashboard Configuration</h1>
+        <form id="dashboardForm">
+          <div class="form-group">
+            <label for="widgetType">Widget Type:</label>
+            <select id="widgetType" class="form-control">
+              <option value="cryptoMentions">Crypto Mentions</option>
+              <option value="sentimentAnalysis">Sentiment Analysis</option>
+              <option value="priceData">Price Data</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cryptoTickers">Crypto Tickers:</label>
+            <select multiple id="cryptoTickers" class="form-control">
+              <!-- Placeholder for dynamic crypto tickers -->
+              <option value="BTC">BTC</option>
+              <option value="ETH">ETH</option>
+              <!-- Add more options based on available cryptocurrencies -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Layout:</label>
+            <input type="number" id="layoutX" class="form-control" placeholder="X Position" required>
+            <input type="number" id="layoutY" class="form-control" placeholder="Y Position" required>
+            <input type="number" id="layoutW" class="form-control" placeholder="Width" required>
+            <input type="number" id="layoutH" class="form-control" placeholder="Height" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Widget</button>
+        </form>
+        <div id="dashboardWidgets" class="mt-4">
+          <!-- Widgets will be rendered here -->
+        </div>
+        <section class="api-key-management mt-5">
+          <h2>API Key Management</h2>
+          <button id="generateApiKey" class="btn btn-primary">Generate New API Key</button>
+          <div id="apiKeyDisplay" class="mt-3"></div>
+          <button id="activateApiKey" class="btn btn-success mt-2" disabled>Activate API Key</button>
+          <button id="deactivateApiKey" class="btn btn-warning mt-2" disabled>Deactivate API Key</button>
+        </section>
+      </div>
+    </main>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/dist/sortable.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/apiKeyManager.js"></script>
+<%- include('partials/_footer.ejs') %>
+  </body>
+</html>

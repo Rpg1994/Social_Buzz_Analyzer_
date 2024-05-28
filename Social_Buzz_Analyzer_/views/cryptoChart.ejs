@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include partials/_head %>
+  <title>Crypto Chart</title>
+</head>
+<body>
+  <% include partials/_header %>
+  <div class="container mt-5">
+    <h2>Cryptocurrency Chart</h2>
+    <div class="mb-3">
+      <label for="cryptoTickerSelect" class="form-label">Select Cryptocurrency:</label>
+      <select class="form-select" id="cryptoTickerSelect">
+        <!-- Dropdown options will be populated dynamically -->
+      </select>
+    </div>
+    <div>
+      <h3 id="cryptoName"></h3>
+      <h4 id="cryptoPrice"></h4>
+    </div>
+    <canvas id="cryptoChartCanvas"></canvas>
+  </div>
+  <% include partials/_footer %>
+  <script src="/js/cryptoChart.js"></script>
+</body>
+</html>
